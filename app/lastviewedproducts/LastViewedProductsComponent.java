@@ -1,12 +1,17 @@
 package lastviewedproducts;
 
+import com.commercetools.sunrise.common.pages.PageData;
 import com.commercetools.sunrise.components.ComponentBean;
 import com.commercetools.sunrise.framework.ControllerComponent;
+import com.commercetools.sunrise.hooks.PageDataHook;
+import com.commercetools.sunrise.hooks.RequestHook;
+import com.commercetools.sunrise.hooks.SingleProductVariantHook;
 import com.commercetools.sunrise.productcatalog.common.ProductListBeanFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.products.ProductProjection;
+import io.sphere.sdk.products.ProductVariant;
 import io.sphere.sdk.products.search.ProductProjectionSearch;
 import io.sphere.sdk.search.PagedSearchResult;
 import play.Logger;
@@ -14,8 +19,10 @@ import play.libs.Json;
 import play.mvc.Http;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -27,8 +34,17 @@ import static java.util.Collections.emptyList;
  * 2. fetch products in session and save them to be used later
  * 3. add the data to the page as a component
  */
-public class LastViewedProductsComponent implements ControllerComponent {
+public class LastViewedProductsComponent implements ControllerComponent, RequestHook, SingleProductVariantHook, PageDataHook {
     public static final String SESSION_KEY = "lastSeenProductSkus";
+
+    @Inject
+    private Http.Context httpContext;
+
+    @Inject
+    private SphereClient sphereClient;
+
+    @Inject
+    private ProductListBeanFactory productListBeanFactory;
 
     private int capacity = 4;//you could improve it by reading it from the configuration
     private List<ProductProjection> productProjections;
@@ -89,5 +105,22 @@ public class LastViewedProductsComponent implements ControllerComponent {
             }
         }));
         return skus.stream().map(sku -> skuToProjectionMap.get(sku)).collect(Collectors.toList());
+    }
+
+    @Override
+    public CompletionStage<?> onRequest(Http.Context context) {
+        return fetchProductsFromSkuInSession(context, sphereClient)
+                .thenAccept(list -> productProjections = list);
+    }
+
+    @Override
+    public void acceptPageData(PageData pageData) {
+        pageData.getContent().addComponent(createComponentBean(productListBeanFactory, productProjections));
+    }
+
+    @Override
+    public CompletionStage<?> onSingleProductVariantLoaded(ProductProjection product, ProductVariant variant) {
+        writeSkuToSession(variant.getSku(), httpContext.session(), capacity);
+        return CompletableFuture.completedFuture(null);
     }
 }
