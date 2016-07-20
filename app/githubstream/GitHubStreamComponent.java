@@ -72,10 +72,21 @@ public class GitHubStreamComponent extends Base implements ControllerComponent, 
         pageData.getContent().addComponent(createComponentBean());
     }
 
+//    @Override
+//    public CompletionStage<?> onRequest(Http.Context context) {
+//        return performWebserviceCall()
+//                .thenApply(res -> extractData(res.get()))
+//                .thenAccept(list -> this.dataList.addAll(list));
+//    }
+
+    /**
+     * Implementation 2
+     * @param context
+     * @return
+     */
     @Override
     public CompletionStage<?> onRequest(Http.Context context) {
         return performWebserviceCall()
-                .thenApply(res -> extractData(res.get()))
-                .thenAccept(list -> this.dataList.addAll(list));
+                .thenAccept(wsResponseOpt -> wsResponseOpt.ifPresent(wsResponse -> dataList = extractData(wsResponse)));
     }
 }
