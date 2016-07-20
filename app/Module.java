@@ -1,6 +1,7 @@
 import bulkygoods.BulkyGoodsComponent;
 import com.commercetools.sunrise.common.controllers.ReverseRouter;
 import com.commercetools.sunrise.common.localization.LocationSelectorControllerComponent;
+import com.commercetools.sunrise.common.models.ProductVariantBeanFactory;
 import com.commercetools.sunrise.common.pages.DefaultPageNavMenuControllerComponent;
 import com.commercetools.sunrise.common.reverserouter.*;
 import com.commercetools.sunrise.framework.MultiControllerComponentResolver;
@@ -10,6 +11,7 @@ import com.commercetools.sunrise.shoppingcart.MiniCartControllerComponent;
 import com.commercetools.sunrise.shoppingcart.common.CheckoutCommonComponent;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import controllers.MyProductVariantBeanFactory;
 import lastviewedproducts.LastViewedProductsComponent;
 import models.ShopCartLikeBeanFactory;
 import routing.ReverseRouterImpl;
@@ -46,6 +48,8 @@ public class Module extends AbstractModule {
         bind(MyOrdersReverseRouter.class).to(ReverseRouterImpl.class).in(Singleton.class);
         bind(MyPersonalDetailsReverseRouter.class).to(ReverseRouterImpl.class).in(Singleton.class);
         bind(CartLikeBeanFactory.class).to(ShopCartLikeBeanFactory.class);//used by bulky goods component
+
+        bind(ProductVariantBeanFactory.class).to(MyProductVariantBeanFactory.class);
     }
 
     @Provides
