@@ -49,8 +49,8 @@ POST        /:languageTag/checkout/address                     @controllers.Chec
 # ~~~~~
 
 # Shows the product detail page
+GET         /:languageTag/:productId/:variantId.html           @controllers.ProductDetailController.showProductByProductIdAndVariantId(languageTag: String, productId: String, variantId: Int)
 GET         /:languageTag/:productSlug-$sku<[^-]+>.html        @controllers.ProductDetailController.showProductBySlugAndSku(languageTag: String, productSlug: String, sku: String)
-#GET         /:languageTag/:productId/:variantId.html           @controllers.ProductDetailController.showProductByProductIdAndVariantId(languageTag: String, productId: String, variantId: Int)
 
 
 # PRODUCT OVERVIEW
