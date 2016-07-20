@@ -31,13 +31,13 @@ public class HttpContextController extends Controller {
                 .withQueryFilters(product -> product.slug().locale(ENGLISH).is(englishSlug));
         return sphereClient.execute(request)
                 .thenApply(result -> result.head())//one possible solution here (A)
-                .thenApply(productProjectionOptional -> {//one possible solution here (B)
+                .thenApplyAsync(productProjectionOptional -> {//one possible solution here (B)
                     productProjectionOptional.ifPresent(prod -> {
                         session("lastSeenProduct", prod.getId());
                     });
                     return productProjectionOptional
                             .map(product -> ok(product.getName().get(ENGLISH)))
                             .orElse(notFound("product not found"));
-                });
+                }, httpExecutionContext.current());
     }
 }
