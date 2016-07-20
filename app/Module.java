@@ -1,4 +1,3 @@
-import bettertitles.BetterTitlesComponent;
 import bulkygoods.BulkyGoodsComponent;
 import com.commercetools.sunrise.common.controllers.ReverseRouter;
 import com.commercetools.sunrise.common.localization.LocationSelectorControllerComponent;
@@ -11,13 +10,13 @@ import com.commercetools.sunrise.shoppingcart.MiniCartControllerComponent;
 import com.commercetools.sunrise.shoppingcart.common.CheckoutCommonComponent;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import io.sphere.sdk.utils.MoneyImpl;
 import lastviewedproducts.LastViewedProductsComponent;
 import models.ShopCartLikeBeanFactory;
 import routing.ReverseRouterImpl;
 
 import javax.inject.Singleton;
 import javax.money.Monetary;
+import javax.money.format.MonetaryFormats;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -32,7 +31,12 @@ import javax.money.Monetary;
 public class Module extends AbstractModule {
     @Override
     protected void configure() {
-        Monetary.getDefaultRounding().apply(MoneyImpl.ofCents(123, "EUR"));//workaround see https://github.com/commercetools/commercetools-sunrise-java/issues/404
+//        Monetary.getDefaultRounding().apply(MoneyImpl.ofCents(123, "EUR"));//workaround see https://github.com/commercetools/commercetools-sunrise-java/issues/404
+        Monetary.getDefaultRounding();
+        Monetary.getDefaultAmountType();
+        MonetaryFormats.getDefaultFormatProviderChain();
+        Monetary.getDefaultCurrencyProviderChain();
+
         bind(ReverseRouter.class).to(ReverseRouterImpl.class).in(Singleton.class);
         bind(ProductReverseRouter.class).to(ReverseRouterImpl.class).in(Singleton.class);
         bind(CheckoutReverseRouter.class).to(ReverseRouterImpl.class).in(Singleton.class);
