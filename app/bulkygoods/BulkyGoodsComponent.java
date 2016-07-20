@@ -2,6 +2,7 @@ package bulkygoods;
 
 
 import com.commercetools.sunrise.framework.ControllerComponent;
+import com.commercetools.sunrise.hooks.PrimaryCartUpdateAsyncFilter;
 import io.sphere.sdk.carts.Cart;
 import io.sphere.sdk.carts.CustomLineItem;
 import io.sphere.sdk.carts.LineItem;
@@ -27,7 +28,7 @@ import static io.sphere.sdk.utils.CompletableFutureUtils.successful;
 /**
  * 1. every time the cart has been updated, update it with bulky goods
  */
-public class BulkyGoodsComponent implements ControllerComponent {
+public class BulkyGoodsComponent implements ControllerComponent, PrimaryCartUpdateAsyncFilter {
     public static final MonetaryAmount MONETARY_AMOUNT = MoneyImpl.ofCents(321, "EUR");
     public static final String BULKY_FEE_SLUG = "bulkyFee";
     public static final LocalizedString NAME = LocalizedString.of(Locale.GERMAN, "Sperrgutzuschlag", Locale.ENGLISH, "bulky goods fee");
@@ -73,5 +74,10 @@ public class BulkyGoodsComponent implements ControllerComponent {
 
     private Optional<CustomLineItem> findBulkyGoodsFee(final Cart cart) {
         return cart.getCustomLineItems().stream().filter(item -> BULKY_FEE_SLUG.equals(item.getSlug())).findFirst();
+    }
+
+    @Override
+    public CompletionStage<Cart> asyncFilterPrimaryCart(Cart cart, ExpansionPathContainer<Cart> expansionPathContainer) {
+        return updateCartWithBulkyGoods(cart, expansionPathContainer);
     }
 }
