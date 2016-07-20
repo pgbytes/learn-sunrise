@@ -12,6 +12,7 @@ import com.commercetools.sunrise.shoppingcart.common.CheckoutCommonComponent;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import controllers.MyProductVariantBeanFactory;
+import controllers.ProductAvailabilityComponent;
 import lastviewedproducts.LastViewedProductsComponent;
 import models.ShopCartLikeBeanFactory;
 import routing.ReverseRouterImpl;
@@ -62,6 +63,7 @@ public class Module extends AbstractModule {
                 .add(LocationSelectorControllerComponent.class, controller -> !controller.getFrameworkTags().contains("checkout"))
                 .add(LastViewedProductsComponent.class, controller -> !controller.getFrameworkTags().contains("checkout"))
                 .add(BulkyGoodsComponent.class, controller -> true)
+                .add(ProductAvailabilityComponent.class, controller -> true)
                 .build();
     }
 }
