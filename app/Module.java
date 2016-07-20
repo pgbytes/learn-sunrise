@@ -1,3 +1,4 @@
+import bettertitles.BetterTitlesComponent;
 import bulkygoods.BulkyGoodsComponent;
 import com.commercetools.sunrise.common.controllers.ReverseRouter;
 import com.commercetools.sunrise.common.localization.LocationSelectorControllerComponent;
@@ -64,6 +65,7 @@ public class Module extends AbstractModule {
                 .add(LastViewedProductsComponent.class, controller -> !controller.getFrameworkTags().contains("checkout"))
                 .add(BulkyGoodsComponent.class, controller -> true)
                 .add(ProductAvailabilityComponent.class, controller -> true)
+                .add(BetterTitlesComponent.class, controller -> true)
                 .build();
     }
 }
