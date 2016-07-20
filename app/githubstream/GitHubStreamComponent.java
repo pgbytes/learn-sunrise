@@ -1,13 +1,17 @@
 package githubstream;
 
+import com.commercetools.sunrise.common.pages.PageData;
 import com.commercetools.sunrise.components.ComponentBean;
 import com.commercetools.sunrise.framework.ControllerComponent;
+import com.commercetools.sunrise.hooks.PageDataHook;
+import com.commercetools.sunrise.hooks.RequestHook;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.sphere.sdk.models.Base;
 import play.Configuration;
 import play.libs.ws.WSAPI;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -20,7 +24,7 @@ import java.util.concurrent.CompletionStage;
  * 1. do the webservice call and save the feed data to be used later
  * 2. add the data to the page as a component
  */
-public class GitHubStreamComponent extends Base implements ControllerComponent {
+public class GitHubStreamComponent extends Base implements ControllerComponent, PageDataHook, RequestHook {
     private String url;
     private String templateName;
     @Inject
@@ -61,5 +65,17 @@ public class GitHubStreamComponent extends Base implements ControllerComponent {
         data.put("list", dataList);
         componentBean.setComponentData(data);
         return componentBean;
+    }
+
+    @Override
+    public void acceptPageData(PageData pageData) {
+        pageData.getContent().addComponent(createComponentBean());
+    }
+
+    @Override
+    public CompletionStage<?> onRequest(Http.Context context) {
+        return performWebserviceCall()
+                .thenApply(res -> extractData(res.get()))
+                .thenAccept(list -> this.dataList.addAll(list));
     }
 }
